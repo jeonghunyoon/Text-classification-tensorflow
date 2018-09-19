@@ -5,8 +5,12 @@ Data helper :
 """
 
 import pandas as pd
+import numpy as np
 import consts
 import gc
+import typing
+
+from collections import Counter
 
 from konlpy.tag import Hannanum
 
@@ -81,12 +85,22 @@ def get_docs_n_labels_from_file(doc_path, label_path):
     return docs, labels
 
 
-def get_padded_seq(doc):
-    if len(doc) < consts.MAX_SEQUENCE_LENGTH:
-        doc.extend(consts.MAX_SEQUENCE_LENGTH - len(doc)) * [consts.PAD_WORD]
+def get_padded_seq(document):
+    """Doc(sequence of string) -> Sequence with '<PAD>' and max length."""
+    if len(document) < consts.MAX_SEQUENCE_LENGTH:
+        document.extend(consts.MAX_SEQUENCE_LENGTH - len(document)) * [consts.PAD_WORD]
     else:
-        doc = doc[:consts.MAX_SEQUENCE_LENGTH]
-    return doc
+        document = document[:consts.MAX_SEQUENCE_LENGTH]
+    return np.array(document)
 
+
+def get_lookup_dict(documents: np.ndarray):
+    corpus = Counter(documents.flatten()).most_common()
+    lookup_dict = {}
+    rev_lookup_dict = {}
+    for idx, val in enumerate(corpus):
+        lookup_dict[val[0]] = idx
+        rev_lookup_dict[idx] = [val[0]]
+    return lookup_dict, rev_lookup_dict
 
 
