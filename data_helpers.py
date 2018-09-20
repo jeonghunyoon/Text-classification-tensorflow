@@ -104,3 +104,10 @@ def get_lookup_dict(documents: np.ndarray):
     return lookup_dict, rev_lookup_dict
 
 
+def get_num_seq(padded_seq, lookup_dict):
+    """Sequence of string -> Sequence of index"""
+    num_seq = []
+    for word in padded_seq:
+        num_seq.append(lookup_dict[word])
+    return num_seq
+
