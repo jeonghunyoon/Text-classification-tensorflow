@@ -3,7 +3,16 @@ import tensorflow as tf
 
 class HyperParams:
     @staticmethod
-    def get_hyper_params():
+    def get_cnn_hyper_params():
         return tf.contrib.training.HParams(
-            embedding_dim=256
+            embedding_dim=256,
+            filters=512,
+            filter_sizes=[3, 4, 5],
+            strides=(1, 1),
+            learning_rate=0.0001,
+            beta2=0.999,
+            drop_prob=0.2,
+            dense_layer_units=1024,
+            num_epochs=30,
+            batch_size=128,
         )

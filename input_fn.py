@@ -1,6 +1,8 @@
 import tensorflow as tf
 import logging
+import consts
 
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
@@ -18,8 +20,7 @@ class InputFunction:
                      mode=tf.estimator.ModeKeys.EVAL,
                      num_epochs=1,
                      batch_size=128):
-        """Input function 을 정의합니다."""
-
+        # For data feeding.
         iterator_initializer_hook = IteratorInitializerHook()
 
         def input_fn():
@@ -29,7 +30,7 @@ class InputFunction:
             logger.info("Input message dimension", texts=texts.shape)
             logger.info("Input label dimension", labels=labels.shape)
 
-            # Numpy array 를 tf.dataset 에서 사용할 경우, 메모리 부족 문제가 발생할 수 있어서 placeholder 를 사용합니다.
+            # In tf.dataset, numpy array => use placeholder. (Memory)
             texts_placeholder = tf.placeholder(texts.dtype, texts.shape)
             labels_placeholder = tf.placeholder(labels.dtype, labels.shape)
 
@@ -48,25 +49,22 @@ class InputFunction:
             iterator_initializer_hook.iterator_initializer_func = \
                 lambda sess: sess.run(
                     iterator.initializer,
-                    feed_dict = {
+                    feed_dict={
                         texts_placeholder: texts,
                         labels_placeholder: labels
                     }
                 )
-            logger.info("Dataset iterator created", features=features)
-            logger.info("Dataset iterator created", targets=targets)
 
-            return {'reports': features}, targets  # Dictionary 형태로 output 을 넘겨줍니다.
-
+            return {consts.KEY_OF_INPUT: features}, targets  # Dictionary type
         return input_fn, iterator_initializer_hook
 
 
 class IteratorInitializerHook(tf.train.SessionRunHook):
-    """Session 이 생성된 이후에, iterator data 의 초기화를 hook 하는 class 입니다."""
+    """After creating session, initiate iterator data hook."""
+
     def __init__(self):
         super(IteratorInitializerHook, self).__init__()
         self.iterator_initializer_func = None
 
     def after_create_session(self, session, coord):
-        """Session 이 생성된 후에 iterator 를 초기화하는 함수입니다."""
         self.iterator_initializer_func(session)

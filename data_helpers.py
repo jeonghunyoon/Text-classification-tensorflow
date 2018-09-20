@@ -13,7 +13,8 @@ from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 from sklearn.pipeline import Pipeline
 from sklearn.utils import shuffle
 
-logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)  # Just for debugging.
 
 
 class ReshapedLabelEncoder(LabelEncoder):
@@ -97,7 +98,7 @@ def get_docs_n_labels_from_file(doc_path, label_path):
 def get_padded_seq(document):
     """Doc(sequence of string) -> Sequence with '<PAD>' and max length."""
     if len(document) < consts.MAX_SEQUENCE_LENGTH:
-        document.extend(consts.MAX_SEQUENCE_LENGTH - len(document)) * [consts.PAD_WORD]
+        document.extend((consts.MAX_SEQUENCE_LENGTH - len(document)) * [consts.PAD_WORD])
     else:
         document = document[:consts.MAX_SEQUENCE_LENGTH]
     return np.array(document)
@@ -125,7 +126,7 @@ def get_input(is_first_time, parse_type):
     """
 
     # 1
-    if bool(is_first_time):
+    if is_first_time == 'true':
         logger.info("First execution...")
         parse_text_data()
 
@@ -143,5 +144,8 @@ def get_input(is_first_time, parse_type):
     train_oh_labels = get_one_hot_labels(train_labels)
     test_oh_labels = get_one_hot_labels(test_labels)
 
-    return shuffle(train_seqs, train_oh_labels, random_state=43), \
-           shuffle(test_seqs, test_oh_labels, random_state=43)
+    train_seqs, train_oh_labels = shuffle(train_seqs, train_oh_labels, random_state=43)
+    test_seqs, test_oh_labels = shuffle(test_seqs, test_oh_labels, random_state=43)
+
+    return train_seqs, train_oh_labels, test_seqs, test_oh_labels
+

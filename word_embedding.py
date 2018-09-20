@@ -44,7 +44,7 @@ class WordEmbedding:
             workers=multiprocessing.cpu_count()
         )
         print("Word2vec model created.")
-        return np.array(model)
+        return model
 
     def get_d2v_model(self):
         """Return the trained doc2vec embeddings."""

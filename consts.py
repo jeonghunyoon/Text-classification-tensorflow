@@ -26,6 +26,9 @@ TRAIN_LABELS = './input/{}_train_labels.txt'
 TEST_DOCUMENTS = './input/{}_test_documents.txt'
 TEST_LABELS = './input/{}_test_labels.txt'
 
+CNN_MODEL_DIR = 'trained_models/sentiment_classifier_cnn'
+
 PAD_WORD = '<PAD>'
 MAX_SEQUENCE_LENGTH = 100
 NUM_LABELS = 2
+KEY_OF_INPUT = 'texts'
