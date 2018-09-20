@@ -1,6 +1,7 @@
 import gensim
 import numpy as np
 import multiprocessing
+import typing
 
 
 class WordEmbedding:
@@ -14,15 +15,23 @@ class WordEmbedding:
         self.texts = texts
         self.embedding_dim = embedding_dim
 
-    def embed(self, model, word):
+    def _embed(self, model, word):
         """It the word is not in embedding, return the zero vector."""
         try:
             return model.wv.get_vector(word)
         except KeyError:
             return np.zeros([self.embedding_dim], dtype=np.float32)
 
-    def get_w2v_embedding(self):
-        """Return the word2vec embeddings."""
+    def get_embedding_mtx(self, model, texts) -> np.ndarray:
+        """Return value clue : for shape safety"""
+        embeddings = [
+            np.array([self._embed(model, word) for word in text]) for text in texts
+        ]
+
+        return np.array(embeddings)
+
+    def get_w2v_model(self):
+        """Return the trained word2vec model."""
 
         model = gensim.models.Word2Vec(
             self.texts,
@@ -34,17 +43,11 @@ class WordEmbedding:
             min_count=5,
             workers=multiprocessing.cpu_count()
         )
-
         print("Word2vec model created.")
-
-        embeddings = [
-            np.array([self.embed(model, word) for word in text]) for text in self.texts
-        ]
-
-        return np.array(embeddings)
+        return np.array(model)
 
     def get_d2v_model(self):
-        """Return the doc2vec embeddings."""
+        """Return the trained doc2vec embeddings."""
 
         # Basically, used the ordering of texts.
         documents = LabeledDocument(self.texts, list(range(len(self.texts))))
@@ -58,14 +61,8 @@ class WordEmbedding:
             epochs=30,
             workers=multiprocessing.cpu_count()
         )
-
         print("Doc2vec model created.")
-
-        embeddings = [
-            np.array([self.embed(model, word) for word in text]) for text in self.texts
-        ]
-
-        return np.array(embeddings)
+        return model
 
 
 class LabeledDocument(object):

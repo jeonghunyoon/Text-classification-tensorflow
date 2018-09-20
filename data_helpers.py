@@ -7,15 +7,25 @@ Data helper :
 import pandas as pd
 import numpy as np
 import consts
-import gc
-import typing
-
-from collections import Counter
-
+import logging
 from konlpy.tag import Hannanum
+from sklearn.preprocessing import LabelEncoder, OneHotEncoder
+from sklearn.pipeline import Pipeline
+from sklearn.utils import shuffle
+
+logger = logging.getLogger(__name__)
+
+
+class ReshapedLabelEncoder(LabelEncoder):
+    """For using the Pipeline class, we reshape the result."""
+
+    def fit_transform(self, y, *args, **kwargs):
+        return super().fit_transform(y).reshape(-1, 1)
+
 
 def parse(df, _type: str):
     """Parse function"""
+
     # Parser
     korean_parser = Hannanum()
 
@@ -27,6 +37,7 @@ def parse(df, _type: str):
     morphs_doc_f = open('./input/morphs_{}_documents.txt'.format(_type), 'w')
     morphs_label_f = open('./input/morphs_{}_labels.txt'.format(_type), 'w')
 
+    logger.info("Starting parsing...")
     for doc in neg:
         try:
             nouns_doc_f.write(','.join(korean_parser.nouns(doc)) + '\n')
@@ -39,7 +50,7 @@ def parse(df, _type: str):
         except:
             pass
 
-    print('%s pos document parsing completed.' % _type)
+    logger.info('%s pos document parsing completed.' % _type)
 
     for doc in pos:
         try:
@@ -53,7 +64,7 @@ def parse(df, _type: str):
         except:
             pass
 
-    print('%s neg document parsing completed.' % _type)
+    logger.info('%s neg document parsing completed.' % _type)
 
     nouns_doc_f.close()
     nouns_label_f.close()
@@ -65,7 +76,6 @@ def parse_text_data():
     """Parsing and saving data"""
     train_df = pd.read_csv(consts.TRAIN_DATA_REPO, delimiter='\t')
     test_df = pd.read_csv(consts.TEST_DATA_REPO, delimiter='\t')
-    print(train_df.columns)  # id, document, label
 
     parse(train_df, 'train')
     parse(test_df, 'test')
@@ -81,7 +91,6 @@ def get_docs_n_labels_from_file(doc_path, label_path):
     with open(label_path, 'r') as f:
         for label in f:
             labels.append(int(label.strip()))
-
     return docs, labels
 
 
@@ -94,20 +103,45 @@ def get_padded_seq(document):
     return np.array(document)
 
 
-def get_lookup_dict(documents: np.ndarray):
-    corpus = Counter(documents.flatten()).most_common()
-    lookup_dict = {}
-    rev_lookup_dict = {}
-    for idx, val in enumerate(corpus):
-        lookup_dict[val[0]] = idx
-        rev_lookup_dict[idx] = [val[0]]
-    return lookup_dict, rev_lookup_dict
+def get_one_hot_labels(labels):
+    """Using pipeline, transform label data into one hot vector."""
+    reshaped_label_encoder = ReshapedLabelEncoder()
+    one_hot_encoder = OneHotEncoder()
+    pipeline = Pipeline([
+        ('label_encoder', reshaped_label_encoder),
+        ('one_hot_encoder', one_hot_encoder)
+    ])
+    one_hot_vector = pipeline.fit_transform(labels)
+
+    return one_hot_vector.toarray()
 
 
-def get_num_seq(padded_seq, lookup_dict):
-    """Sequence of string -> Sequence of index"""
-    num_seq = []
-    for word in padded_seq:
-        num_seq.append(lookup_dict[word])
-    return num_seq
+def get_input(is_first_time, parse_type):
+    """
+    In step 1, store data after parsing for performance issues.
+    This process is needed at the first time only.
 
+    In step 2, use data according to parse_type(morphs, nouns)
+    """
+
+    # 1
+    if bool(is_first_time):
+        logger.info("First execution...")
+        parse_text_data()
+
+    # 2
+    train_docs, train_labels = get_docs_n_labels_from_file(
+        consts.TRAIN_DOCUMENTS.format(parse_type), consts.TRAIN_LABELS.format(parse_type))
+    test_docs, test_labels = get_docs_n_labels_from_file(
+        consts.TEST_DOCUMENTS.format(parse_type), consts.TEST_LABELS.format(parse_type))
+
+    # 3
+    train_seqs = np.array([get_padded_seq(doc) for doc in train_docs])
+    test_seqs = np.array([get_padded_seq(doc) for doc in test_docs])
+
+    # 4
+    train_oh_labels = get_one_hot_labels(train_labels)
+    test_oh_labels = get_one_hot_labels(test_labels)
+
+    return shuffle(train_seqs, train_oh_labels, random_state=43), \
+           shuffle(test_seqs, test_oh_labels, random_state=43)
