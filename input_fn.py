@@ -27,8 +27,8 @@ class InputFunction:
             shuffle = True if mode == tf.estimator.ModeKeys.TRAIN else False
             buffer_size = 2 * self.hparams.batch_size + 1
 
-            logger.info("Input message dimension", texts=texts.shape)
-            logger.info("Input label dimension", labels=labels.shape)
+            logger.info({'texts': texts.shape})
+            logger.info({'labels': labels.shape})
 
             # In tf.dataset, numpy array => use placeholder. (Memory)
             texts_placeholder = tf.placeholder(texts.dtype, texts.shape)

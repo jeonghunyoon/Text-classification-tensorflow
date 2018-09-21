@@ -17,7 +17,7 @@ def get_convolution_pooling_layer(input_layer, params, i):
                                   activation=tf.nn.relu)
     # Max pool layer
     pool_layer = tf.layers.max_pooling2d(inputs=conv_layer,
-                                         pool_size=(params.sequence_length - params.filter_sizes[i] + 1, 1),
+                                         pool_size=(consts.MAX_SEQUENCE_LENGTH - params.filter_sizes[i] + 1, 1),
                                          strides=params.strides)
     return pool_layer
 

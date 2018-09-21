@@ -11,19 +11,19 @@ logger = logging.getLogger(__name__)
 
 
 class ClassifierExperiment:
-    def __init__(self, train_X, test_X, train_y, test_y, hparmas, model_fn):
+    def __init__(self, train_X, test_X, train_y, test_y, hparams, model_fn):
         self.train_X = train_X
         self.test_X = test_X
         self.train_y = train_y
         self.test_y = test_y
         self.model_fn = model_fn
-        self.hparams = hparmas
+        self.hparams = hparams
         self.run_config = tf.estimator.RunConfig(
             log_step_count_steps=100,
             tf_random_seed=43,
             model_dir=consts.CNN_MODEL_DIR
         )
-        self.input_fn = InputFunction(hparmas)
+        self.input_fn = InputFunction(hparams)
 
     def __serving_input_fn(self):
         """Serving input function : used in model prediction """
@@ -49,7 +49,7 @@ class ClassifierExperiment:
         )
         train_spec = tf.estimator.TrainSpec(
             input_fn=train_input_fn,
-            max_steps=self.hparams.max_steps,
+            max_steps=int(len(self.train_X) * self.hparams.num_epochs / self.hparams.batch_size),
             hooks=[train_hook]
         )
         return train_spec
@@ -97,7 +97,7 @@ class ClassifierExperiment:
             logger.info("Removing previous artifacts.")
 
         start_time = datetime.datetime.utcnow()
-        logger.info("Experiment start time", start_at=start_time.strftime("%H:%M:%S"))
+        logger.info({'start_at': start_time.strftime("%H:%M:%S")})
 
         estimator = self._create_estimator()
 
@@ -111,7 +111,7 @@ class ClassifierExperiment:
         )
 
         end_time = datetime.datetime.utcnow()
-        logger.info("Experiment end time", end_at=end_time.strftime("%H:%M:%S"))
+        logger.info({'end_at': end_time.strftime("%H:%M:%S")})
 
     def evaluate(self):
         train_eval_input_fn, train_eval_hook = self.input_fn.get_input_fn(
@@ -134,11 +134,11 @@ class ClassifierExperiment:
             steps=1,
             hooks=[train_eval_hook]
         )
-        logger.info("Train evaluation result", train_eval_result=train_eval_result)
+        logger.info({'train_eval_result': train_eval_result})
 
         test_eval_result = estimator.evaluate(
             input_fn=test_eval_input_fn,
             steps=1,
             hooks=[test_eval_hook]
         )
-        logger.info("Test evaluation result", test_eval_result=test_eval_result)
+        logger.info({'test_eval_result': test_eval_result})
