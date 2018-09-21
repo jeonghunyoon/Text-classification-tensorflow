@@ -38,8 +38,8 @@ class WordEmbedding:
             size=self.embedding_dim,
             window=5,
             sg=1,
-            alpha=0.0001,
-            min_alpha=0.00005,
+            alpha=0.001,
+            min_alpha=0.0005,
             min_count=5,
             workers=multiprocessing.cpu_count()
         )
@@ -56,9 +56,9 @@ class WordEmbedding:
             documents,
             size=self.embedding_dim,
             window=5,
-            alpha=0.0001,
-            min_alpha=0.00005,
-            epochs=30,
+            alpha=0.001,
+            min_alpha=0.0005,
+            epochs=15,
             workers=multiprocessing.cpu_count()
         )
         print("Doc2vec model created.")
