@@ -22,6 +22,7 @@ This project is based on following papers.
 ## Run project
 ```python
 python executor.py is_first_time parse_type embedding_type
+
 # command example : python executor.py false morphs doc2vec
 ```
 - is_first_time : <U>*true*</U> or <U>*false*</U>. When <U>*true*</U> it will create all parsed files(morphs, nouns) 
