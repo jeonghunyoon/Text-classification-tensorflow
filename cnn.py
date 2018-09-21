@@ -60,7 +60,7 @@ def model_fn(features, labels, mode, params):
         probabilities = tf.nn.softmax(logits)
         predicted_indices = tf.argmax(probabilities, 1)
         predictions = {
-            'class': tf.gather(params.using_labels, predicted_indices),
+            'class': tf.gather([0, 1], predicted_indices),
             'probabilities': probabilities
         }
         export_outputs = {
