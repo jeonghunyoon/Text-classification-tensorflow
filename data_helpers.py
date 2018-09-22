@@ -101,7 +101,7 @@ def get_padded_seq(document):
         document.extend((consts.MAX_SEQUENCE_LENGTH - len(document)) * [consts.PAD_WORD])
     else:
         document = document[:consts.MAX_SEQUENCE_LENGTH]
-    return np.array(document)
+    return document
 
 
 def get_one_hot_labels(labels):
@@ -137,8 +137,8 @@ def get_input(is_first_time, parse_type):
         consts.TEST_DOCUMENTS.format(parse_type), consts.TEST_LABELS.format(parse_type))
 
     # 3
-    train_seqs = np.array([get_padded_seq(doc) for doc in train_docs])
-    test_seqs = np.array([get_padded_seq(doc) for doc in test_docs])
+    train_seqs = [get_padded_seq(doc) for doc in train_docs]
+    test_seqs = [get_padded_seq(doc) for doc in test_docs]
 
     # 4
     train_oh_labels = get_one_hot_labels(train_labels)

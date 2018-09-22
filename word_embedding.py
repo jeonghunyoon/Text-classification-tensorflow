@@ -12,6 +12,7 @@ class WordEmbedding:
     """
 
     def __init__(self, texts, embedding_dim):
+        # Tests : Python list
         self.texts = texts
         self.embedding_dim = embedding_dim
 
