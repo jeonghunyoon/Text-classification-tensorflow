@@ -23,7 +23,7 @@ This project is based on following papers.
 ```python
 python executor.py is_first_time parse_type embedding_type
 
-# command example : python executor.py false morphs doc2vec
+# command example : python executor.py false morphs word2vec
 ```
 - is_first_time : <U>*true*</U> or <U>*false*</U>. When <U>*true*</U> it will create all parsed files(morphs, nouns) 
 and store it. When <U>*false*</U> it just load the parsed data according to parse_type.
