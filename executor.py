@@ -25,7 +25,7 @@ embedding_type = args[3]
 train_seqs, train_y, test_seqs, test_y = get_input(is_first_time=is_first_time,
                                                    parse_type=parse_type)
 
-hparams = HyperParams(train_seqs).get_cnn_hyper_params()
+hparams = HyperParams().get_cnn_hyper_params()
 
 # 3. Transform the data using embedding vectors.
 embedding = WordEmbedding(train_seqs, hparams.embedding_dim)
