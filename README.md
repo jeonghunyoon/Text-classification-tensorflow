@@ -31,3 +31,10 @@ and store it. When <U>*false*</U> it just load the parsed data according to pars
 - parse_type : <U>*morphs*</U> or <U>*nouns*</U>
 
 - embedding_type : <U>*doc2vec*</U> or <U>*word2vec*</U>. LDA, NMF will be added.
+
+
+## Performance
+- parse_type : morphs, embedding_type : word2vec 
+    - accuracy = 0.8116487, area_under_auc = 0.8694117
+
+
