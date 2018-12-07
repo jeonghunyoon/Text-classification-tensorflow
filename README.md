@@ -1,4 +1,4 @@
-# text-classification-cnn-tf (Sentiment analysis)
+# Text-classification-tensorflow
 
 This project is **Sentiment Analysis** for Naver(Korean portal site) movie review.
 
@@ -38,3 +38,5 @@ and store it. When <U>*false*</U> it just load the parsed data according to pars
     - accuracy = 0.8116487, area_under_auc = 0.8694117
 
 
+## Author
+Jeonghun Yoon
